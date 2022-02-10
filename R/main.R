@@ -55,7 +55,7 @@ race_prr <- function(.tab, .use = c("first_name", "last_name")) {
     stop("Name Table (.tab) must have a unique column ID")
   }
 
-  if (any(duplicated(tab[["id"]]))) {
+  if (any(duplicated(.tab[["id"]]))) {
     stop("Name Table (.tab) must have a unique column ID")
   }
 
@@ -138,7 +138,7 @@ race_wru <- function(.tab, .use_geo = NULL, .use_age = FALSE, .use_sex = FALSE, 
     stop("Name Table (.tab) must have a unique column ID")
   }
 
-  if (any(duplicated(tab[["id"]]))) {
+  if (any(duplicated(.tab[["id"]]))) {
     stop("Name Table (.tab) must have a unique column ID")
   }
 
@@ -341,7 +341,7 @@ race_predict <- function(.tab, .packages = c("prr", "wru"),
     stop("Name Table (.tab) must have a unique column ID")
   }
 
-  if (any(duplicated(tab[["id"]]))) {
+  if (any(duplicated(.tab[["id"]]))) {
     stop("Name Table (.tab) must have a unique column ID")
   }
 
