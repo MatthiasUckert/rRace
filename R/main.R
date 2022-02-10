@@ -50,6 +50,15 @@ race_prr <- function(.tab, .use = c("first_name", "last_name")) {
   # Check Columns -----------------------------------------------------------
   check_cols(.tab, .require = .use)
 
+  # Checks ------------------------------------------------------------------
+  if (!"id" %in% colnames(.tab)) {
+    stop("Name Table (.tab) must have a unique column ID")
+  }
+
+  if (any(duplicated(tab[["id"]]))) {
+    stop("Name Table (.tab) must have a unique column ID")
+  }
+
   # Predict Race: First Name ------------------------------------------------
   if ("first_name" %in% .use) {
     tab_fn_ <- dplyr::bind_cols(
@@ -122,6 +131,17 @@ race_wru <- function(.tab, .use_geo = NULL, .use_age = FALSE, .use_sex = FALSE, 
 
   last_name <- sex <- age <- pred.asi <- pred.bla <- pred.his <- pred.whi <-
     pred.oth <- prob_asian <- NULL
+
+
+  # Checks ------------------------------------------------------------------
+  if (!"id" %in% colnames(.tab)) {
+    stop("Name Table (.tab) must have a unique column ID")
+  }
+
+  if (any(duplicated(tab[["id"]]))) {
+    stop("Name Table (.tab) must have a unique column ID")
+  }
+
 
   # Rename First Name for WRU Package ---------------------------------------
   tab_in_ <- dplyr::mutate(.tab, surname = gsub("[^[:alnum:] ]", "", last_name))
@@ -300,13 +320,13 @@ download_census <- function(.key = "", .geo, .dir, .workers = 1, .retry = 10, .p
 #'
 #' IMPORTANT: Non-Predictions are omited from the output
 #' @export
-# .tab = name_table
-# .packages = c("prr", "wru")
-# .prr_use = c("first_name", "last_name")
-# .wru_use_geo = "county"
-# .wru_use_age = TRUE
-# .wru_use_sex = TRUE
-# .wru_census = download_census(.dir = "cache_census_data/", .geo = "county")
+.tab = name_table
+.packages = c("prr", "wru")
+.prr_use = c("first_name", "last_name")
+.wru_use_geo = NULL
+.wru_use_age = FALSE
+.wru_use_sex = FALSE
+.wru_census = NULL
 race_predict <- function(.tab, .packages = c("prr", "wru"),
                          .prr_use = c("first_name", "last_name"),
                          .wru_use_geo = NULL, .wru_use_age = FALSE,
@@ -315,6 +335,15 @@ race_predict <- function(.tab, .packages = c("prr", "wru"),
   prob_white <- prob_other <- prob_black <- prob_hispanic <- prob_asian <-
     highest_prob <- guess_diff <- race <- id <- NULL
   lst_ <- list()
+
+  # Checks ------------------------------------------------------------------
+  if (!"id" %in% colnames(.tab)) {
+    stop("Name Table (.tab) must have a unique column ID")
+  }
+
+  if (any(duplicated(tab[["id"]]))) {
+    stop("Name Table (.tab) must have a unique column ID")
+  }
 
   if ("prr" %in% .packages) {
     lst_[[1]] <- race_prr(.tab, .prr_use)
