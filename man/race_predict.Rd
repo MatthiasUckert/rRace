@@ -9,9 +9,9 @@ race_predict(
   .packages = c("prr", "wru"),
   .prr_use = c("first_name", "last_name"),
   .wru_use_geo = NULL,
-  .wru_use_age = FALSE,
-  .wru_use_sex = FALSE,
-  .wru_cenus = NULL
+  .wru_use_birth = FALSE,
+  .wru_use_gender = FALSE,
+  .wru_census = NULL
 )
 }
 \arguments{
@@ -24,11 +24,11 @@ race_predict(
 \item{.wru_use_geo}{Which geo variable has been used in wru (Either "county", "tract", "block", or "place").
 If used must be the same as in download_census()}
 
-\item{.wru_use_age}{Should race be inferred from information about a persons age (wru)?}
+\item{.wru_use_birth}{Should race be inferred from information about a persons birth year (wru)?}
 
-\item{.wru_use_sex}{Should race be inferred from information about a persons sex (wru)?}
+\item{.wru_use_gender}{Should race be inferred from information about a persons sex (wru)?}
 
-\item{.wru_cenus}{Only needed if .use_geo is not NULL (wru)}
+\item{.wru_census}{Only needed if .use_geo is not NULL (wru)}
 }
 \value{
 The original data frame (.tab in long format) appended with the following columns:\cr
@@ -36,8 +36,8 @@ The original data frame (.tab in long format) appended with the following column
 \item method: Used methods (here: prr for predictrace)\cr
 \item use_name: which name variable has been used (here: first/last)\cr
 \item use_geo: Which geo variable has been used (here: none)\cr
-\item use_age: Is a persons age used for prediction (here: FALSE)\cr
-\item use_sex: Is a persons sex used for prediction (here: FALSE)\cr
+\item use_birth: Is a persons age used for prediction (here: FALSE)\cr
+\item use_gender: Is a persons sex used for prediction (here: FALSE)\cr
 \item prob_asian: Probability of the person being asian\cr
 \item prob_black: Probability of the person being black\cr
 \item prob_hispanic: Probability of the person being hispanic\cr

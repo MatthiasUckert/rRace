@@ -8,8 +8,8 @@
 #' - method: Used methods (here: prr for predictrace)\cr
 #' - use_name: which name variable has been used (here: first/last)\cr
 #' - use_geo: Which geo variable has been used (here: none)\cr
-#' - use_age: Is a persons age used for prediction (here: FALSE)\cr
-#' - use_sex: Is a persons sex used for prediction (here: FALSE)\cr
+#' - use_birth: Is a persons age used for prediction (here: FALSE)\cr
+#' - use_gender: Is a persons sex used for prediction (here: FALSE)\cr
 #' - prob_asian: Probability of the person being asian\cr
 #' - prob_black: Probability of the person being black\cr
 #' - prob_hispanic: Probability of the person being hispanic\cr
@@ -86,7 +86,7 @@ race_prr <- function(.tab, .use = c("first_name", "last_name")) {
       prob_white = probability_white,
       prob_other = probability_american_indian
     ) %>%
-    dplyr::mutate(use_geo = "none", use_age = FALSE, use_sex = FALSE, method = "prr") %>%
+    dplyr::mutate(use_geo = "none", use_birth = FALSE, use_gender = FALSE, method = "prr") %>%
     dplyr::filter(!is.na(prob_asian))
 
   # Select and Reorder Columns ----------------------------------------------
@@ -98,21 +98,28 @@ race_prr <- function(.tab, .use = c("first_name", "last_name")) {
 
 #' Wrapper around wru::predict_race()
 #'
-#' @param .tab Input Table (see details)
+#' @param .tab
+#' Input Table, must contain at least 2 columns:\cr
+#' id: Unique Identifier of the Data\cr
+#' first_name/last_name: At least a first name OR last name column (both columns are possible)\cr
+#'
 #' @param .use_geo
 #' Which geo variable has been used (Either "county", "tract", "block", or "place").
 #' If used must be the same as in download_census()
-#' @param .use_age Should race be inferred from information about a persons age?
-#' @param .use_sex Should race be inferred from information about a persons sex?
-#' @param .census Only needed if .use_geo is not NULL
+#' @param .use_birth
+#' Should race be inferred from information about a persons birth year?
+#' @param .use_gender
+#' Should race be inferred from information about a persons sex?
+#' @param .census
+#' Only needed if .use_geo is not NULL
 #'
 #' @return
 #' The original data frame (.tab in long format) appended with the following columns:\cr
 #' - method: Used methods (here: prr for predictrace)\cr
 #' - use_name: which name variable has been used (here: first/last)\cr
 #' - use_geo: Which geo variable has been used (here: none)\cr
-#' - use_age: Is a persons age used for prediction (here: FALSE)\cr
-#' - use_sex: Is a persons sex used for prediction (here: FALSE)\cr
+#' - use_birth: Is a persons age used for prediction (here: FALSE)\cr
+#' - use_gender: Is a persons sex used for prediction (here: FALSE)\cr
 #' - prob_asian: Probability of the person being asian\cr
 #' - prob_black: Probability of the person being black\cr
 #' - prob_hispanic: Probability of the person being hispanic\cr
@@ -124,13 +131,13 @@ race_prr <- function(.tab, .use = c("first_name", "last_name")) {
 # DEBUG
 # .tab = name_table
 # .use_geo = "county"
-# .use_age = TRUE
-# .use_sex = TRUE
-# .census = download_census(.dir = "cache_census_data/", .geo = "county")
-race_wru <- function(.tab, .use_geo = NULL, .use_age = FALSE, .use_sex = FALSE, .census = NULL) {
+# .use_birth = TRUE
+# .use_gender = FALSE
+# .census = download_census(.dir = "cache_census_data/", .geo = "county", .workers = 25, .progress = TRUE)
+race_wru <- function(.tab, .use_geo = NULL, .use_birth = FALSE, .use_gender = FALSE, .census = NULL) {
 
-  last_name <- sex <- age <- pred.asi <- pred.bla <- pred.his <- pred.whi <-
-    pred.oth <- prob_asian <- NULL
+  last_name <- gender <- birth_year <- pred.asi <- pred.bla <- pred.his <- pred.whi <-
+    pred.oth <- prob_asian <- age <- sex <- id <- NULL
 
 
   # Checks ------------------------------------------------------------------
@@ -151,7 +158,7 @@ race_wru <- function(.tab, .use_geo = NULL, .use_age = FALSE, .use_sex = FALSE, 
     tab_ <- wru::predict_race(
       voter.file = tab_in_,
       surname.only = TRUE
-    ) %>% dplyr::mutate(use_geo = "none", use_age = FALSE, use_sex = FALSE) %>%
+    ) %>% dplyr::mutate(use_geo = "none", use_birth = FALSE, use_gender = FALSE) %>%
       quiet()
   }
 
@@ -161,43 +168,52 @@ race_wru <- function(.tab, .use_geo = NULL, .use_age = FALSE, .use_sex = FALSE, 
       voter.file = tab_in_,
       census.geo = .use_geo,
       census.data = purrr::flatten(dplyr::filter(.census, !age, !sex)$value)
-    ) %>% dplyr::mutate(use_geo = .use_geo, use_age = FALSE, use_sex = FALSE) %>%
+    ) %>% dplyr::mutate(use_geo = .use_geo, use_birth = FALSE, use_gender = FALSE) %>%
       quiet()
   }
 
   # Surname & Geo & Age -----------------------------------------------------
-  if (!is.null(.use_geo) & .use_age) {
+  if (!is.null(.use_geo) & .use_birth) {
+    cur_year_ <- as.integer(format(Sys.Date(), "%Y"))
+    tab_in_ <- dplyr::mutate(tab_in_, age = cur_year_ - birth_year)
+
     tab_ <- wru::predict_race(
       voter.file = dplyr::filter(tab_in_, !is.na(age)),
       census.geo = .use_geo,
       census.data = purrr::flatten(dplyr::filter(.census, age, !sex)$value),
       age = TRUE
-    ) %>% dplyr::mutate(use_geo = .use_geo, use_age = TRUE, use_sex = FALSE) %>%
+    ) %>% dplyr::mutate(use_geo = .use_geo, use_birth = TRUE, use_gender = FALSE) %>%
       quiet()
   }
 
 
   # Surname & Geo & Sex ------------------------------------------------------
-  if (!is.null(.use_geo) & .use_sex) {
+  if (!is.null(.use_geo) & .use_gender) {
+    tab_in_ <- dplyr::mutate(tab_in_, sex = as.integer(gender == "female"))
+
     tab_ <- wru::predict_race(
       voter.file = dplyr::filter(tab_in_, !is.na(sex)),
       census.geo = .use_geo,
       census.data = purrr::flatten(dplyr::filter(.census, !age, sex)$value),
       sex = TRUE
-    ) %>% dplyr::mutate(use_geo = .use_geo, use_age = FALSE, use_sex = TRUE) %>%
+    ) %>% dplyr::mutate(use_geo = .use_geo, use_birth = FALSE, use_gender = TRUE) %>%
       quiet()
   }
 
 
   # Surname & Geo & Age & Sex -----------------------------------------------
-  if (!is.null(.use_geo) & .use_age & .use_sex) {
+  if (!is.null(.use_geo) & .use_birth & .use_gender) {
+    cur_year_ <- as.integer(format(Sys.Date(), "%Y"))
+    tab_in_ <- dplyr::mutate(tab_in_, age = cur_year_ - birth_year)
+    tab_in_ <- dplyr::mutate(tab_in_, sex = as.integer(gender == "female"))
+
     tab_ <- wru::predict_race(
       voter.file = dplyr::filter(tab_in_, !is.na(age), !is.na(sex)),
       census.geo = .use_geo,
       census.data = purrr::flatten(dplyr::filter(.census, age, sex)$value),
       age = TRUE,
       sex = TRUE
-    ) %>% dplyr::mutate(use_geo = .use_geo, use_age = TRUE, use_sex = TRUE) %>%
+    ) %>% dplyr::mutate(use_geo = .use_geo, use_birth = TRUE, use_gender = TRUE) %>%
       quiet()
   }
 
@@ -215,7 +231,7 @@ race_wru <- function(.tab, .use_geo = NULL, .use_age = FALSE, .use_sex = FALSE, 
   # Select and Reorder Columns ----------------------------------------------
   cn_ <- colnames(tab_)
   tab_ <- tab_[, c(colnames(.tab), "method", cn_[grepl("use_", cn_)], sort(cn_[grepl("prob_", cn_)]))]
-  tibble::as_tibble(tab_)
+  dplyr::arrange(tibble::as_tibble(tab_), id)
 }
 
 #' Download Census Data
@@ -301,11 +317,11 @@ download_census <- function(.key = "", .geo, .dir, .workers = 1, .retry = 10, .p
 #' @param .wru_use_geo
 #' Which geo variable has been used in wru (Either "county", "tract", "block", or "place").
 #' If used must be the same as in download_census()
-#' @param .wru_use_age
-#' Should race be inferred from information about a persons age (wru)?
-#' @param .wru_use_sex
+#' @param .wru_use_birth
+#' Should race be inferred from information about a persons birth year (wru)?
+#' @param .wru_use_gender
 #' Should race be inferred from information about a persons sex (wru)?
-#' @param .wru_cenus
+#' @param .wru_census
 #' Only needed if .use_geo is not NULL (wru)
 #'
 #' @return
@@ -313,8 +329,8 @@ download_census <- function(.key = "", .geo, .dir, .workers = 1, .retry = 10, .p
 #' - method: Used methods (here: prr for predictrace)\cr
 #' - use_name: which name variable has been used (here: first/last)\cr
 #' - use_geo: Which geo variable has been used (here: none)\cr
-#' - use_age: Is a persons age used for prediction (here: FALSE)\cr
-#' - use_sex: Is a persons sex used for prediction (here: FALSE)\cr
+#' - use_birth: Is a persons age used for prediction (here: FALSE)\cr
+#' - use_gender: Is a persons sex used for prediction (here: FALSE)\cr
 #' - prob_asian: Probability of the person being asian\cr
 #' - prob_black: Probability of the person being black\cr
 #' - prob_hispanic: Probability of the person being hispanic\cr
@@ -329,14 +345,14 @@ download_census <- function(.key = "", .geo, .dir, .workers = 1, .retry = 10, .p
 # .tab = name_table
 # .packages = c("prr", "wru")
 # .prr_use = c("first_name", "last_name")
-# .wru_use_geo = NULL
-# .wru_use_age = FALSE
-# .wru_use_sex = FALSE
-# .wru_census = NULL
+# .wru_use_geo = "county"
+# .wru_use_birth = TRUE
+# .wru_use_gender = TRUE
+# .wru_census = download_census(.dir = "cache_census_data/", .geo = "county", .workers = 25, .progress = TRUE)
 race_predict <- function(.tab, .packages = c("prr", "wru"),
                          .prr_use = c("first_name", "last_name"),
-                         .wru_use_geo = NULL, .wru_use_age = FALSE,
-                         .wru_use_sex = FALSE, .wru_cenus = NULL) {
+                         .wru_use_geo = NULL, .wru_use_birth = FALSE,
+                         .wru_use_gender = FALSE, .wru_census = NULL) {
 
   prob_white <- prob_other <- prob_black <- prob_hispanic <- prob_asian <-
     highest_prob <- guess_diff <- race <- id <- NULL
@@ -344,11 +360,11 @@ race_predict <- function(.tab, .packages = c("prr", "wru"),
 
   # Checks ------------------------------------------------------------------
   if (!"id" %in% colnames(.tab)) {
-    stop("Name Table (.tab) must have a unique column ID")
+    stop("Name Table (.tab) must have a unique column ID", call. = FALSE)
   }
 
   if (any(duplicated(.tab[["id"]]))) {
-    stop("Name Table (.tab) must have a unique column ID")
+    stop("Name Table (.tab) must have a unique column ID", call. = FALSE)
   }
 
   if ("prr" %in% .packages) {
@@ -359,19 +375,19 @@ race_predict <- function(.tab, .packages = c("prr", "wru"),
     lst_[[2]] <- race_wru(.tab, NULL, FALSE, FALSE, NULL)
 
     if (!is.null(.wru_use_geo)) {
-      lst_[[3]] <- race_wru(.tab, .wru_use_geo, FALSE, FALSE, .wru_cenus)
+      lst_[[3]] <- race_wru(.tab, .wru_use_geo, FALSE, FALSE, .wru_census)
 
 
-      if (.wru_use_age) {
-        lst_[[4]] <- race_wru(.tab, .wru_use_geo, TRUE, FALSE, .wru_cenus)
+      if (.wru_use_birth) {
+        lst_[[4]] <- race_wru(.tab, .wru_use_geo, TRUE, FALSE, .wru_census)
       }
 
-      if (.wru_use_sex) {
-        lst_[[5]] <- race_wru(.tab, .wru_use_geo, FALSE, TRUE, .wru_cenus)
+      if (.wru_use_gender) {
+        lst_[[5]] <- race_wru(.tab, .wru_use_geo, FALSE, TRUE, .wru_census)
       }
 
-      if (.wru_use_age & .wru_use_sex) {
-        lst_[[6]] <- race_wru(.tab, .wru_use_geo, TRUE, TRUE, .wru_cenus)
+      if (.wru_use_birth & .wru_use_gender) {
+        lst_[[6]] <- race_wru(.tab, .wru_use_geo, TRUE, TRUE, .wru_census)
       }
     }
   }
@@ -421,33 +437,113 @@ race_select <- function(.tab, .col = c("guess_diff", "highest_prob")) {
     dplyr::ungroup()
 }
 
-# .tab <- name_table
-# .method = "genderize"
-# gender_ssa <- function(.tab, use_age = FALSE) {
-#   if (use_age) {
-#     tab_in_ <- dplyr::distinct(.tab, first_name, age) %>%
-#       dplyr::mutate(age = )
-#   }
-#
-#
-#   vec_fn_ <- unique(.tab[["first_name"]])
-#
-#   tab_ <- gender::gender(vec_fn_, )
-# }
-#
-# gender_predict <- function(.tab, .years = c(1932, 2012),
-#                            .method = c("ssa", "ipums", "napp", "kantrowitz", "genderize", "demo"),
-#                            .countries = c(
-#                              "United States", "Canada", "United Kingdom", "Denmark", "Iceland",
-#                              "Norway", "Sweden"
-#                            )) {
-#
-#   vec_fn_ <- unique(.tab[["first_name"]])
-#   gender::gender(
-#     names = vec_fn_, method = .method
-#   ) %>%
-#     dplyr::select(
-#       first_name = name, prop_male = proportion_male,
-#       prop_female = proportion_female, gender
-#     )
-# }
+
+#' Title
+#'
+#' @param .tab
+#' Input Table (see details)
+#' @param .use_birth
+#' Should race be inferred from information about a persons birth year?
+#' @param .methods
+#' Any combination of "ssa", "ipums", "napp"
+#'
+#' @return
+#' A Dataframe
+#' @export
+predict_gender <- function(.tab, .use_birth = FALSE, .methods = c("ssa", "ipums", "napp")) {
+
+  first_name <- birth_year <- gender <- name <- method <- use_birth <- year_min <-
+    year_max <- proportion_male <- proportion_female <- prob_male <- prob_female <-
+    guess_diff <- highest_prob <- NULL
+  # Checks ------------------------------------------------------------------
+  if (!"id" %in% colnames(.tab)) {
+    stop("Name Table (.tab) must have a unique column ID", call. = FALSE)
+  }
+
+  if (!"id" %in% colnames(.tab)) {
+    stop("Name Table (.tab) must have a column first_name", call. = FALSE)
+  }
+
+  if (any(duplicated(.tab[["id"]]))) {
+    stop("Name Table (.tab) must have a unique column ID", call. = FALSE)
+  }
+
+  if (!all(.methods) %in% c("ssa", "ipums", "napp")) {
+    stop("allowed methods are ssa, ipums and napp", call. = FALSE)
+  }
+
+
+
+  tab_nyear <- purrr::map_dfr(
+    .x = purrr::set_names(.methods, .methods),
+    .f = ~ gender::gender(unique(.tab[["first_name"]]), method = .x),
+    .id = "method"
+  ) %>% dplyr::mutate(use_birth = FALSE)
+
+  if (.use_birth) {
+    if (!"birth_year" %in% colnames(.tab)) {
+      stop("Name Table (.tab) must have a column birth_year when using .use_birth = TRUE", call. = FALSE)
+    }
+
+    tab_in_ <- .tab %>%
+      dplyr::distinct(first_name, birth_year) %>%
+      dplyr::mutate(birth_class = as.character(birth_year))
+
+    lst_in_ <- split(tab_in_, tab_in_$birth_class)
+
+    f <- function(.lst, .method) {
+      gender <- NULL
+      purrr::map_dfr(
+        .x = .lst,
+        .f = ~ gender::gender(.x[["first_name"]], .x[["birth_year"]][1], .method)
+      ) %>% quiet() %>% suppressWarnings() %>%
+        dplyr::mutate(gender = as.character(gender))
+    }
+
+    tab_wyear <- purrr::map_dfr(
+      .x = purrr::set_names(.methods, .methods),
+      .f = ~ f(lst_in_, .x),
+      .id = "method"
+    ) %>% dplyr::mutate(use_birth = TRUE)
+
+  }
+
+  tmp0_ <- dplyr::bind_rows(tab_nyear, tab_wyear) %>%
+    dplyr::select(
+      first_name = name, method, use_birth, year_min, year_max,
+      prob_male = proportion_male, prob_female = proportion_female, gender
+      ) %>%
+    dplyr::mutate(
+      highest_prob = pmax(prob_male, prob_female, na.rm = TRUE),
+      guess_diff = highest_prob - pmin(prob_male, prob_female, na.rm = TRUE)
+    ) %>%
+    dplyr::relocate(gender, .after = guess_diff)
+
+
+  tmp1_ <- dplyr::left_join(.tab, tmp0_, by = "first_name")
+
+
+}
+
+#' Select Gender
+#'
+#' @param .tab A dataframe
+#' @param .col c("guess_diff", "highest_prob")
+#'
+#' @return A dataframe
+#' @export
+gender_select <- function(.tab, .col = c("guess_diff", "highest_prob")) {
+  id <- n <- gender <- NULL
+
+  col_ <- match.arg(.col, c("guess_diff", "highest_prob"))
+
+  .tab %>%
+    dplyr::group_by(id) %>%
+    dplyr::slice_max(!!dplyr::sym(col_), n = 1) %>%
+    dplyr::distinct(id, !!dplyr::sym(col_), gender, .keep_all = TRUE) %>%
+    dplyr::mutate(
+      n_gender = n(),
+      algo = col_
+    ) %>%
+    dplyr::ungroup()
+}

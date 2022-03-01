@@ -3,7 +3,7 @@ library(tidyverse); library(stringi)
 
 name_table <- read_csv("data-raw/name_table_raw.csv", col_types = cols(.default = "c")) %>%
   mutate(
-    sex = if_else(sex == "Male", 0L, 1L),
+    gender = if_else(sex == "Male", "male", "female"),
     TRACTCE10 = stri_pad_left(TRACTCE10, 11, "0"),
     CD = stri_sub(TRACTCE10, 1, 2),
     county = stri_sub(TRACTCE10, 3, 5),
@@ -11,8 +11,8 @@ name_table <- read_csv("data-raw/name_table_raw.csv", col_types = cols(.default 
   ) %>%
   left_join(tibble(state = state.name, code = state.abb), by = "state") %>%
   rename(state_name = state, state = code) %>%
-  mutate(id = row_number()) %>%
-  select(id, first_name, last_name = surname, sex, age, state, county, tract) %>%
+  mutate(id = row_number(), birth_year = 2022 - as.integer(age)) %>%
+  select(id, first_name, last_name = surname, gender, birth_year, state, county, tract) %>%
   slice(1:200)
 
 

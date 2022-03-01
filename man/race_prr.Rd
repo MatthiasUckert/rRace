@@ -17,8 +17,8 @@ The original data frame (.tab in long format) appended with the following column
 \item method: Used methods (here: prr for predictrace)\cr
 \item use_name: which name variable has been used (here: first/last)\cr
 \item use_geo: Which geo variable has been used (here: none)\cr
-\item use_age: Is a persons age used for prediction (here: FALSE)\cr
-\item use_sex: Is a persons sex used for prediction (here: FALSE)\cr
+\item use_birth: Is a persons age used for prediction (here: FALSE)\cr
+\item use_gender: Is a persons sex used for prediction (here: FALSE)\cr
 \item prob_asian: Probability of the person being asian\cr
 \item prob_black: Probability of the person being black\cr
 \item prob_hispanic: Probability of the person being hispanic\cr

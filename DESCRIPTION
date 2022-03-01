@@ -23,4 +23,5 @@ Imports:
     future,
     readr,
     stringi,
-    tidyr
+    tidyr,
+    gender
