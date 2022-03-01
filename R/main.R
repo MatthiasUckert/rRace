@@ -450,7 +450,7 @@ race_select <- function(.tab, .col = c("guess_diff", "highest_prob")) {
 #' @return
 #' A Dataframe
 #' @export
-predict_gender <- function(.tab, .use_birth = FALSE, .methods = c("ssa", "ipums", "napp")) {
+gender_predict <- function(.tab, .use_birth = FALSE, .methods = c("ssa", "ipums", "napp")) {
 
   first_name <- birth_year <- gender <- name <- method <- use_birth <- year_min <-
     year_max <- proportion_male <- proportion_female <- prob_male <- prob_female <-
