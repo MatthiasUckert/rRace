@@ -63,7 +63,7 @@ race_prr <- function(.tab, .use = c("first_name", "last_name")) {
   if ("first_name" %in% .use) {
     tab_fn_ <- dplyr::bind_cols(
       .tab, predictrace::predict_race(name = .tab$first_name, surname = FALSE)
-    ) %>% dplyr::mutate(use_name = "first")
+    ) %>% dplyr::mutate(use_name = "first_name")
   } else {
     tab_fn_ <- tibble::tibble()
   }
@@ -72,7 +72,7 @@ race_prr <- function(.tab, .use = c("first_name", "last_name")) {
   if ("last_name" %in% .use) {
     tab_ln_ <- dplyr::bind_cols(
       .tab, predictrace::predict_race(name = .tab$last_name)
-    ) %>% dplyr::mutate(use_name = "last")
+    ) %>% dplyr::mutate(use_name = "last_name")
   } else {
     tab_ln_ <- tibble::tibble()
   }
@@ -292,15 +292,21 @@ download_census <- function(.key = "", .geo, .dir, .workers = 1, .retry = 10, .p
 
 #' Predict Race
 #'
-#' @param .tab Input Table (see details)
-#' @param .packages Which package to use, either prr (predictrace) or wru (WRU)
-#' @param .prr_use Which name variables to use in prr? First Name (first_name) or Last Name (last_name)
+#' @param .tab
+#' Input Table (see details)
+#' @param .packages
+#' Which package to use, either prr (predictrace) or wru (WRU)
+#' @param .prr_use
+#' Which name variables to use in prr? First Name (first_name) or Last Name (last_name)
 #' @param .wru_use_geo
 #' Which geo variable has been used in wru (Either "county", "tract", "block", or "place").
 #' If used must be the same as in download_census()
-#' @param .wru_use_age Should race be inferred from information about a persons age (wru)?
-#' @param .wru_use_sex Should race be inferred from information about a persons sex (wru)?
-#' @param .wru_cenus Only needed if .use_geo is not NULL (wru)
+#' @param .wru_use_age
+#' Should race be inferred from information about a persons age (wru)?
+#' @param .wru_use_sex
+#' Should race be inferred from information about a persons sex (wru)?
+#' @param .wru_cenus
+#' Only needed if .use_geo is not NULL (wru)
 #'
 #' @return
 #' The original data frame (.tab in long format) appended with the following columns:\cr
@@ -320,13 +326,13 @@ download_census <- function(.key = "", .geo, .dir, .workers = 1, .retry = 10, .p
 #'
 #' IMPORTANT: Non-Predictions are omited from the output
 #' @export
-.tab = name_table
-.packages = c("prr", "wru")
-.prr_use = c("first_name", "last_name")
-.wru_use_geo = NULL
-.wru_use_age = FALSE
-.wru_use_sex = FALSE
-.wru_census = NULL
+# .tab = name_table
+# .packages = c("prr", "wru")
+# .prr_use = c("first_name", "last_name")
+# .wru_use_geo = NULL
+# .wru_use_age = FALSE
+# .wru_use_sex = FALSE
+# .wru_census = NULL
 race_predict <- function(.tab, .packages = c("prr", "wru"),
                          .prr_use = c("first_name", "last_name"),
                          .wru_use_geo = NULL, .wru_use_age = FALSE,
@@ -390,3 +396,58 @@ race_predict <- function(.tab, .packages = c("prr", "wru"),
     dplyr::arrange(id)
 
 }
+
+
+#' Select Race
+#'
+#' @param .tab A dataframe
+#' @param .col c("guess_diff", "highest_prob")
+#'
+#' @return A dataframe
+#' @export
+race_select <- function(.tab, .col = c("guess_diff", "highest_prob")) {
+  id <- race <- n <- NULL
+
+  col_ <- match.arg(.col, c("guess_diff", "highest_prob"))
+
+  .tab %>%
+    dplyr::group_by(id) %>%
+    dplyr::slice_max(!!dplyr::sym(col_), n = 1) %>%
+    dplyr::distinct(id, !!dplyr::sym(col_), race, .keep_all = TRUE) %>%
+    dplyr::mutate(
+      n_race = n(),
+      algo = col_
+    ) %>%
+    dplyr::ungroup()
+}
+
+# .tab <- name_table
+# .method = "genderize"
+# gender_ssa <- function(.tab, use_age = FALSE) {
+#   if (use_age) {
+#     tab_in_ <- dplyr::distinct(.tab, first_name, age) %>%
+#       dplyr::mutate(age = )
+#   }
+#
+#
+#   vec_fn_ <- unique(.tab[["first_name"]])
+#
+#   tab_ <- gender::gender(vec_fn_, )
+# }
+#
+# gender_predict <- function(.tab, .years = c(1932, 2012),
+#                            .method = c("ssa", "ipums", "napp", "kantrowitz", "genderize", "demo"),
+#                            .countries = c(
+#                              "United States", "Canada", "United Kingdom", "Denmark", "Iceland",
+#                              "Norway", "Sweden"
+#                            )) {
+#
+#   vec_fn_ <- unique(.tab[["first_name"]])
+#   gender::gender(
+#     names = vec_fn_, method = .method
+#   ) %>%
+#     dplyr::select(
+#       first_name = name, prop_male = proportion_male,
+#       prop_female = proportion_female, gender
+#     )
+# }
