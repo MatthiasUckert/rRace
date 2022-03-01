@@ -507,6 +507,8 @@ gender_predict <- function(.tab, .use_birth = FALSE, .methods = c("ssa", "ipums"
       .id = "method"
     ) %>% dplyr::mutate(use_birth = TRUE)
 
+  } else {
+    tab_wyear <- tibble::tibble()
   }
 
   tmp0_ <- dplyr::bind_rows(tab_nyear, tab_wyear) %>%
