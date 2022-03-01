@@ -455,6 +455,7 @@ gender_predict <- function(.tab, .use_birth = FALSE, .methods = c("ssa", "ipums"
   first_name <- birth_year <- gender <- name <- method <- use_birth <- year_min <-
     year_max <- proportion_male <- proportion_female <- prob_male <- prob_female <-
     guess_diff <- highest_prob <- NULL
+
   # Checks ------------------------------------------------------------------
   if (!"id" %in% colnames(.tab)) {
     stop("Name Table (.tab) must have a unique column ID", call. = FALSE)
@@ -468,7 +469,7 @@ gender_predict <- function(.tab, .use_birth = FALSE, .methods = c("ssa", "ipums"
     stop("Name Table (.tab) must have a unique column ID", call. = FALSE)
   }
 
-  if (!all(.methods) %in% c("ssa", "ipums", "napp")) {
+  if (!all(.methods %in% c("ssa", "ipums", "napp"))) {
     stop("allowed methods are ssa, ipums and napp", call. = FALSE)
   }
 
