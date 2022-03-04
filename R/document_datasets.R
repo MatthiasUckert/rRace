@@ -2,7 +2,7 @@
 #'
 #' A dataset containing Names and other Informations used to predict the race of an individual
 #'
-#' @format A data frame with 100 rows and 8 variables:
+#' @format A data frame with 200 rows and 8 variables:
 #' \describe{
 #'   \item{id}{A unique identifier for the individual}
 #'   \item{first_name}{First name of the individual}
