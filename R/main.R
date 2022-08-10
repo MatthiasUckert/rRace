@@ -38,7 +38,7 @@ download_census <- function(.key = "", .geo, .use_age = TRUE, .use_gen = TRUE, .
   combs_ <- tidyr::expand_grid(
     state = get_states(),
     age = unique(c(FALSE, .use_age)),
-    sex = unique(c(FALSE, .use_gen)),
+    gen = unique(c(FALSE, .use_gen)),
   ) %>% dplyr::mutate(
     id = paste(state, age, gen, sep = "-"),
     dplyr::across(dplyr::everything(), ~ purrr::set_names(., id)
@@ -224,7 +224,7 @@ race_prr <- function(.tab, .use = c("first_name", "last_name")) {
 #' @export
 race_wru <- function(.tab, .use_geo = FALSE, .use_age = FALSE, .use_gen = FALSE, .census_dir = NULL, .census_geo = "") {
   # Debug -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-  source("_debug_vars/debug-race_wru.R")
+  # source("_debug_vars/debug-race_wru.R")
 
   # Assign NULL to Global Vars -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
   last_name <- gender <- birth_year <- pred.asi <- pred.bla <- pred.his <- pred.whi <-
@@ -340,7 +340,7 @@ race_wru <- function(.tab, .use_geo = FALSE, .use_age = FALSE, .use_gen = FALSE,
 race_predict <- function(...) {
 
   # Debug -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-  source("_debug_vars/debug-race_predict.R")
+  # source("_debug_vars/debug-race_predict.R")
 
   # Assign NULL to Global Vars -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
   pother <- pwhite <- pblack <- pasian <- phispa <- hp <- gd <- race <- id <- rank_hp <-
@@ -394,7 +394,7 @@ race_predict <- function(...) {
 gender_predict <- function(.tab, .use_age = FALSE, .methods = c("ssa", "ipums", "napp")) {
 
   # Debug -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-  source("_debug_vars/debug-gender_predict.R")
+  # source("_debug_vars/debug-gender_predict.R")
 
 
   # Assign NULL to Global Vars -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --

@@ -28,3 +28,7 @@ Imports:
     tidyr,
     gender,
     glue
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

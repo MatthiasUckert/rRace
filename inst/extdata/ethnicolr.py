@@ -38,7 +38,7 @@ def race_eth(tab, methods = ["ce-l", "fl-f", "fl-l"]):
     # select and reorder columns ----------------------------------------------------------------
     cols_old=list(tab.columns.values)
     cols_old.remove("__name")
-    cols_new=["method", "pother", "pasian", "pblack", "phispa", "pwhite", "pother", "race"]
+    cols_new=["method", "pasian", "pblack", "phispa", "pwhite", "pother", "race"]
     df_out=df_out[cols_old+cols_new]
     
     # recode race values ------------------------------------------------------------------------
