@@ -27,8 +27,10 @@ Imports:
     stringi,
     tidyr,
     gender,
-    glue
+    glue,
 Suggests: 
+    ggthemes,
     knitr,
-    rmarkdown
+    rmarkdown,
+    reticulate
 VignetteBuilder: knitr

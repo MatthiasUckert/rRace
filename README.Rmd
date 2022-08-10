@@ -1,16 +1,15 @@
 ---
-title: "Start Predicting with rRace"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Start Predicting with rRace}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output: github_document
 ---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
 )
 ```
 
@@ -40,11 +39,11 @@ head(tab_prr)
 First we have to download census data
 ```{r}
 download_census(
-  .key = "YOUR KEY",
+  .key = "8d569f4a70e1abf84cd23350522b479216d008c4",
   .geo = "county",
   .use_age = TRUE,
   .use_gen = TRUE,
-  .dir = "../_debug_data/census/",
+  .dir = "_debug_data/census/",
   .workers = 10,
   .retry = 10,
   .progress = TRUE,
@@ -59,7 +58,7 @@ tab_wru <- race_wru(
   .use_geo = TRUE,
   .use_age = TRUE,
   .use_gen = TRUE,
-  .census_dir = "../_debug_data/census/",
+  .census_dir = "_debug_data/census/",
   .census_geo = "county"
 )
 

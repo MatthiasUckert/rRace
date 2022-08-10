@@ -56,7 +56,7 @@ download_census <- function(.key = "", .geo, .use_age = TRUE, .use_gen = TRUE, .
 
     future::plan("multisession", workers = .workers)
     furrr::future_pwalk(
-      .l = list(combs_$state, combs_$age, combs_$sex, combs_$id),
+      .l = list(combs_$state, combs_$age, combs_$gen, combs_$id),
       .f = ~ {
         path_ <- file.path(dir_, paste0(..4, ".rds"))
         if (!file.exists(path_)) {

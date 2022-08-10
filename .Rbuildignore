@@ -5,3 +5,4 @@
 scripts
 _debug_vars
 _debug_data
+^README\.Rmd$
