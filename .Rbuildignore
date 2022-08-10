@@ -1,8 +1,7 @@
-^Rrace\.Rproj$
+^rRace\.Rproj$
 ^\.Rproj\.user$
 ^data-raw$
 ^LICENSE\.md$
-cache_census_data
 scripts
 _debug_vars
 _debug_data

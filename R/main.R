@@ -105,7 +105,7 @@ download_census <- function(.key = "", .geo, .use_age = TRUE, .use_gen = TRUE, .
 #' predictio is based on the last name, geo location is used, age is used, gender is used, and the geo location is a COunty (C)
 #'
 #' @examples
-#' library(Rrace)
+#' library(rRace)
 #'
 #' tab_names <- name_table
 #'

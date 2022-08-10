@@ -1,10 +1,12 @@
-Package: Rrace
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Package: rRace
+Title: Predict race (also gender) form first name/last name pairings
+Version: 1.0
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
+    person("Matthias", "Matthias", , "Matthias.Uckert@Outlook.com", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+Description: 
+    Wrapper around the R packages (predictrace, wru) and the python package ethnicolr.
+    Standarizes the API and implements "GuessDiff" as an algorithm to choose between models.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
