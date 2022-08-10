@@ -4,3 +4,5 @@
 ^LICENSE\.md$
 cache_census_data
 scripts
+_debug_vars
+_debug_data

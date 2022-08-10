@@ -15,11 +15,13 @@ name_table <- read_csv("data-raw/name_table_raw.csv", col_types = cols(.default 
   left_join(tibble(state = state.name, code = state.abb), by = "state") %>%
   rename(state_name = state, state = code) %>%
   mutate(id = row_number(), birth_year = 2022 - as.integer(age)) %>%
-  select(id, first_name, last_name = surname, gender, birth_year, state, county, tract) %>%
-  slice(1:200) %>%
+  select(id, first_name, last_name = surname, gen = gender, age = birth_year, state, county, tract) %>%
+  mutate(age = 2022 - age) %>%
+  arrange(gen) %>%
+  slice(n = 1:200) %>%
   mutate(
-    first_name = .$first_name[int],
-    gender = .$gender[int]
+    last_name = .$last_name[int],
+    age = .$age[int]
     )
 
 

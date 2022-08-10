@@ -9,43 +9,43 @@ race_prr(.tab, .use = c("first_name", "last_name"))
 \arguments{
 \item{.tab}{Input Table (see details)}
 
-\item{.use}{Which name variables to use? First Name (first_name) or Last Name (last_name)}
+\item{.use}{Which name variables to use?\cr
+First Name (first_name) or Last Name (last_name)}
 }
 \value{
 The original data frame (.tab in long format) appended with the following columns:\cr
 \itemize{
-\item method: Used methods (here: prr for predictrace)\cr
-\item use_name: which name variable has been used (here: first/last)\cr
-\item use_geo: Which geo variable has been used (here: none)\cr
-\item use_birth: Is a persons age used for prediction (here: FALSE)\cr
-\item use_gender: Is a persons sex used for prediction (here: FALSE)\cr
-\item prob_asian: Probability of the person being asian\cr
-\item prob_black: Probability of the person being black\cr
-\item prob_hispanic: Probability of the person being hispanic\cr
-\item prob_white: Probability of the person being white\cr
-\item prob_other: Probability of the person being non of the above races\cr
+\item method: Used methods (see details for more information)\cr
+\item pasian: Probability of the person being asian\cr
+\item pblack: Probability of the person being black\cr
+\item phispa: Probability of the person being hispanic\cr
+\item pwhite: Probability of the person being white\cr
+\item pother: Probability of the person being non of the above races\cr
+\item race: The most likely race as predicted by the respective method
 }
-
-IMPORTANT: Non-Predictions are omited from the output
 }
 \description{
 Wrapper around predictrace::predict_race()
+}
+\details{
+The column 'method' encodes several variables at one and is encoded in the following way:\cr
+{package}-{first name used}-{last name used}-{geo loaction used}-{age used}-{gender used}-{geo location}\cr
+For example: The method WRU-0-1-1-1-1-C means that the package WRU is used, prediction is not based on the first name,
+predictio is based on the last name, geo location is used, age is used, gender is used, and the geo location is a COunty (C)
 }
 \examples{
 library(Rrace)
 
 tab_names <- name_table
-# Using First/Last Name
-race_prr(tab_names)
 
-# Using First Name
-race_prr(tab_names, "first_name")
+race_prr(tab_names) # Using First/Last Name
 
-# Using Last Name
-race_prr(tab_names, "last_name")
+race_prr(tab_names, "first_name") # Using First Name
+
+race_prr(tab_names, "last_name") # Using Last Name
 
 # Using Middle Name (Throws an error, because there's no prediction on middle names)
-# If a middle name is present in your dataset, consider pasting it together iwth the first name
+# If a middle name is present in your dataset, consider pasting it together with the first name
 \dontrun{
 race_prr(tab_names, "middle_name")
 }

@@ -1,14 +1,10 @@
-library(reticulate)
-# reticulate::conda_create(envname = "ethn", python_version = "3.7")
-reticulate::use_condaenv(condaenv = "ethn")
+library(reticulate); library(tidyverse)
 
-os <- import("os")
-pd <- import("pandas")
-et <- import("ethnicolr")
+.py_path <- filter(conda_list(), name == "env-ethnicolr")[[2]]
+Sys.setenv(RETICULATE_PYTHON = .py_path)
+Sys.getenv("RETICULATE_PYTHON")
+reticulate::py_discover_config()
+reticulate::source_python(system.file("extdata/ethnicolr.py", package = "Rrace"))
 
-
-
-et$
-
-
-conda_python()
+tab_ <- name_table
+suppressWarnings(tibble::as_tibble(race_eth2(tab_)))

@@ -7,8 +7,8 @@
 #'   \item{id}{A unique identifier for the individual}
 #'   \item{first_name}{First name of the individual}
 #'   \item{last_name}{Last name of the individual}
-#'   \item{gender}{Gender of the individual. male/female}
-#'   \item{birth_year }{Birth Year of the individuals}
+#'   \item{gen}{Gender of the individual. male/female}
+#'   \item{age }{Age of the individual}
 #'   \item{state}{State of the Individual}
 #'   \item{county}{County of the Individual}
 #'   \item{tract}{Tract of the Individual}

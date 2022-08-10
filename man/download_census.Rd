@@ -7,10 +7,13 @@
 download_census(
   .key = "",
   .geo,
+  .use_age = TRUE,
+  .use_gen = TRUE,
   .dir,
   .workers = 1,
   .retry = 10,
-  .progress = FALSE
+  .progress = FALSE,
+  .states = NULL
 )
 }
 \arguments{
@@ -19,6 +22,10 @@ download_census(
 
 \item{.geo}{Either "county", "tract", "block", or "place"}
 
+\item{.use_age}{Should the age be included in the census download?}
+
+\item{.use_gen}{Should the gender be included in the census download?}
+
 \item{.dir}{Folder to store data}
 
 \item{.workers}{Number of paralell workers for downloading data}
@@ -26,6 +33,8 @@ download_census(
 \item{.retry}{The number of retries at the census website if network interruption occurs.}
 
 \item{.progress}{Progress Bar}
+
+\item{.states}{Two Letter state codes to download}
 }
 \value{
 A Dataframe

@@ -2,20 +2,32 @@
 % Please edit documentation in R/main.R
 \name{gender_predict}
 \alias{gender_predict}
-\title{Title}
+\title{Predict Gender}
 \usage{
-gender_predict(.tab, .use_birth = FALSE, .methods = c("ssa", "ipums", "napp"))
+gender_predict(.tab, .use_age = FALSE, .methods = c("ssa", "ipums", "napp"))
 }
 \arguments{
 \item{.tab}{Input Table (see details)}
 
-\item{.use_birth}{Should race be inferred from information about a persons birth year?}
+\item{.use_age}{Should race be inferred from information about a persons birth year?}
 
 \item{.methods}{Any combination of "ssa", "ipums", "napp"}
 }
 \value{
-A Dataframe
+The original data frame (.tab in long format) appended with the following columns:\cr
+\itemize{
+\item method: Used methods (see details for more information)\cr
+\item pmale: Probability of the person being male\cr
+\item gender: The most likely gender as predicted by the respective method\cr
+\item rank: Prediction Rank\cr
+}
 }
 \description{
-Title
+Predict Gender
+}
+\details{
+The column 'method' encodes several variables at one and is encoded in the following way:\cr
+{package}-{first name used}-{last name used}-{geo loaction used}-{age used}-{gender used}-{geo location}\cr
+For example: The method WRU-0-1-1-1-1-C means that the package WRU is used, prediction is not based on the first name,
+predictio is based on the last name, geo location is used, age is used, gender is used, and the geo location is a COunty (C)
 }

@@ -6,10 +6,11 @@
 \usage{
 race_wru(
   .tab,
-  .use_geo = NULL,
-  .use_birth = FALSE,
-  .use_gender = FALSE,
-  .census = NULL
+  .use_geo = FALSE,
+  .use_age = FALSE,
+  .use_gen = FALSE,
+  .census_dir = NULL,
+  .census_geo = ""
 )
 }
 \arguments{
@@ -17,32 +18,38 @@ race_wru(
 id: Unique Identifier of the Data\cr
 first_name/last_name: At least a first name OR last name column (both columns are possible)\cr}
 
-\item{.use_geo}{Which geo variable has been used (Either "county", "tract", "block", or "place").
-If used must be the same as in download_census()}
+\item{.use_geo}{Should race be inferred from geo location (Logical: TRUE/FALSE, Default: FALSE)?\cr
+If TRUE, .tab must contain a column "state" (2 Letter State Codes) and one column of
+"county", "tract", "block", or "place". See: XXX for more information}
 
-\item{.use_birth}{Should race be inferred from information about a persons birth year?}
+\item{.use_age}{Should race be inferred from information about a persons birth year (Logical: TRUE/FALSE, Default: FALSE)?\cr
+If TRUE .tab must contain a column "age" (age of the person in years)}
 
-\item{.use_gender}{Should race be inferred from information about a persons sex?}
+\item{.use_gen}{Should race be inferred from information about a persons gender (Logical: TRUE/FALSE, Default: FALSE)?\cr
+If TRUE .tab must contain a column "gen" (coding: male/female)}
 
-\item{.census}{Only needed if .use_geo is not NULL}
+\item{.census_dir}{Directory to save Census Data (can be reused)}
+
+\item{.census_geo}{Either "county", "tract", "block", or "place"}
 }
 \value{
 The original data frame (.tab in long format) appended with the following columns:\cr
 \itemize{
-\item method: Used methods (here: prr for predictrace)\cr
-\item use_name: which name variable has been used (here: first/last)\cr
-\item use_geo: Which geo variable has been used (here: none)\cr
-\item use_birth: Is a persons age used for prediction (here: FALSE)\cr
-\item use_gender: Is a persons sex used for prediction (here: FALSE)\cr
-\item prob_asian: Probability of the person being asian\cr
-\item prob_black: Probability of the person being black\cr
-\item prob_hispanic: Probability of the person being hispanic\cr
-\item prob_white: Probability of the person being white\cr
-\item prob_other: Probability of the person being non of the above races\cr
+\item method: Used methods (see details for more information)\cr
+\item pasian: Probability of the person being asian\cr
+\item pblack: Probability of the person being black\cr
+\item phispa: Probability of the person being hispanic\cr
+\item pwhite: Probability of the person being white\cr
+\item pother: Probability of the person being non of the above races\cr
+\item race: The most likely race as predicted by the respective method
 }
-
-IMPORTANT: Non-Predictions are omited from the output
 }
 \description{
 Wrapper around wru::predict_race()
+}
+\details{
+The column 'method' encodes several variables at one and is encoded in the following way:\cr
+{package}-{first name used}-{last name used}-{geo loaction used}-{age used}-{gender used}-{geo location}\cr
+For example: The method WRU-0-1-1-1-1-C means that the package WRU is used, prediction is not based on the first name,
+predictio is based on the last name, geo location is used, age is used, gender is used, and the geo location is a COunty (C)
 }
