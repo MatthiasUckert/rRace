@@ -39,7 +39,7 @@ head(tab_prr)
 First we have to download census data
 ```{r}
 download_census(
-  .key = "8d569f4a70e1abf84cd23350522b479216d008c4",
+  .key = "YOUR KEY",
   .geo = "county",
   .use_age = TRUE,
   .use_gen = TRUE,
