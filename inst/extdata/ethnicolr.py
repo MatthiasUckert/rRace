@@ -42,8 +42,8 @@ def race_eth(tab, methods = ["CEL", "FLF", "FLL"]):
     df_out=df_out[cols_old+cols_new]
     
     # recode race values ------------------------------------------------------------------------
-    race_old=["hispanic", "nh_white", "nh_black"]
-    race_new=["hispa", "white", "black"]
+    race_old=["hispanic", "nh_white", "nh_black", "api"]
+    race_new=["hispa", "white", "black", "asian"]
     df_out["race"]=df_out["race"].replace(race_old, race_new)
     
     # return output -----------------------------------------------------------------------------
