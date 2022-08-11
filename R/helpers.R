@@ -64,17 +64,17 @@ check_geo_columns <- function(.tab, .census_geo) {
 #' @param .use_gen same as in race_wru()
 #'
 #' @return A datafram
-wru_get_combinations <- function(.use_age, .use_gen) {
+wru_get_combinations <- function(.use_geo, .use_age, .use_gen) {
 
   # Assign NULL to Global Vars -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
   use_geo <- use_age <- use_gen <- NULL
 
   tidyr::expand_grid(
-    use_geo = TRUE,
+    use_geo = unique(c(FALSE, .use_geo)),
     use_age = unique(c(FALSE, .use_age)),
     use_gen = unique(c(FALSE, .use_gen))
   ) %>%
-    tibble::add_row(use_geo = FALSE, use_age = TRUE, use_gen = TRUE) %>%
+    dplyr::filter(!(!use_geo & (use_age | use_gen))) %>% # Gender and Age can only be used with Geo Variables
     dplyr::mutate(
       id = paste(use_geo, use_age, use_gen, sep = "-"),
       dplyr::across(c(use_geo, use_age, use_gen), ~ purrr::set_names(., id))

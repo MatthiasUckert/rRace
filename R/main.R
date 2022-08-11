@@ -235,27 +235,30 @@ race_wru <- function(.tab, .use_geo = FALSE, .use_age = FALSE, .use_gen = FALSE,
 
   # Checks -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
   check_id(.tab)
-
-  check_census_dir(.census_geo, .census_dir)
-
-  check_geo_columns(.tab, .census_geo)
   check_cols(.tab, "last_name")
 
+  if (.use_geo) check_census_dir(.census_geo, .census_dir)
+  if (.use_geo) check_geo_columns(.tab, .census_geo)
   if (.use_age) check_cols(.tab, "age")
-
   if (.use_gen) check_cols(.tab, "gen")
 
   # Rename Variables for WRU Package -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-  tab_in_ <- dplyr::mutate(.tab, surname = trimws(gsub("[^[:alnum:] ]", "", last_name))) # last_name = surname
-  tab_in_ <- dplyr::mutate(tab_in_, gen = as.integer(gen == "female"))
+  # last_name = surname
+  tab_in_ <- dplyr::mutate(.tab, surname = trimws(gsub("[^[:alnum:] ]", "", last_name)))
+  tab_in_ <- dplyr::rename(tab_in_, tmp_id = id)
+  # Only in case Gender is used
+  if (.use_gen) {
+    tab_in_ <- dplyr::mutate(tab_in_, gen = as.integer(gen == "female"))
+  }
 
   # Make Predictions -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- ---
-  combs_  <- wru_get_combinations(.use_age, .use_gen)
+  combs_  <- wru_get_combinations(.use_geo, .use_age, .use_gen)
   if (.use_geo) {
     census_ <- wru_read_check_census(.tab, .census_dir, .census_geo, .use_age, .use_gen)
   } else {
     census_ <- tibble::tibble(age = 1L, gen = 1L, value = list())
   }
+
 
 
   tab_ <- purrr::pmap_dfr(
@@ -266,7 +269,7 @@ race_wru <- function(.tab, .use_geo = FALSE, .use_age = FALSE, .use_gen = FALSE,
       tab_use_ <- if (..3) dplyr::filter(tab_use_, !is.na(gen)) else tab_use_
       wru::predict_race(
         voter.file = tab_use_,
-        surname.only = ..1,
+        surname.only = !..1,
         census.geo = .census_geo,
         census.data = purrr::flatten(dplyr::filter(census_, age == ..2, gen == ..3)$value),
         age = ..2,
@@ -275,17 +278,20 @@ race_wru <- function(.tab, .use_geo = FALSE, .use_age = FALSE, .use_gen = FALSE,
     }, .id = "method"
   )
 
-  geo_ <- ifelse(is.null(.census_geo), "N", toupper(stringi::stri_sub(.census_geo, 1, 1)))
+  geo_ <- ifelse(.census_geo == "", "N", toupper(stringi::stri_sub(.census_geo, 1, 1)))
   out_ <- tab_ %>%
     dplyr::mutate(
       method = gsub("TRUE", "1", method),
       method = gsub("FALSE", "0", method),
       method = paste0("WRU-0-1-", method, "-", geo_),
-      gen = dplyr::if_else(gen == 1, "female", "male")
     ) %>%
     dplyr::select(-surname) %>%
     dplyr::rename(id = tmp_id)
 
+  # Only in case Gender is used
+  if (.use_gen) {
+    out_ <- dplyr::mutate(out_, gen = dplyr::if_else(gen == 1, "female", "male"))
+  }
 
   miss_ <- tidyr::expand_grid(dplyr::distinct(out_, method), id = .tab$id) %>%
     dplyr::anti_join(
@@ -394,7 +400,7 @@ race_predict <- function(...) {
 gender_predict <- function(.tab, .use_age = FALSE, .methods = c("ssa", "ipums", "napp")) {
 
   # Debug -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-  source("_debug_vars/debug-gender_predict.R")
+  # source("_debug_vars/debug-gender_predict.R")
 
 
   # Assign NULL to Global Vars -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --

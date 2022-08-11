@@ -91,30 +91,28 @@ tab_wru <- race_wru(
 
 head(tab_wru)
 #> # A tibble: 6 x 15
-#>      id first_name last_n~1 gen     age state county tract method  pasian pblack
-#>   <int> <chr>      <chr>    <chr> <dbl> <chr> <chr>  <chr> <chr>    <dbl>  <dbl>
-#> 1     1 Michael    POWELL   male     47 AL    <NA>   <NA>  WRU-0~ NA      NA    
-#> 2     1 Michael    POWELL   male     47 AL    <NA>   <NA>  WRU-0~  0.0046  0.271
-#> 3     1 Michael    POWELL   male     47 AL    <NA>   <NA>  WRU-0~  0.0046  0.271
-#> 4     1 Michael    POWELL   male     47 AL    <NA>   <NA>  WRU-0~  0.0046  0.271
-#> 5     1 Michael    POWELL   male     47 AL    <NA>   <NA>  WRU-0~  0.0046  0.271
-#> 6     2 Cody       Maupin   male     35 AL    007    0100~ WRU-0~ NA      NA    
+#>      id first_n~1 last_~2 gen     age state county tract method   pasian  pblack
+#>   <int> <chr>     <chr>   <chr> <dbl> <chr> <chr>  <chr> <chr>     <dbl>   <dbl>
+#> 1     1 Michael   POWELL  male     47 AL    <NA>   <NA>  WRU-0~  0.0046   0.271 
+#> 2     1 Michael   POWELL  male     47 AL    <NA>   <NA>  WRU-0~ NA       NA     
+#> 3     1 Michael   POWELL  male     47 AL    <NA>   <NA>  WRU-0~ NA       NA     
+#> 4     1 Michael   POWELL  male     47 AL    <NA>   <NA>  WRU-0~ NA       NA     
+#> 5     1 Michael   POWELL  male     47 AL    <NA>   <NA>  WRU-0~ NA       NA     
+#> 6     2 Cody      Maupin  male     35 AL    007    0100~ WRU-0~  0.00610  0.0569
 #> # ... with 4 more variables: phispa <dbl>, pwhite <dbl>, pother <dbl>,
-#> #   race <chr>, and abbreviated variable name 1: last_name
+#> #   race <chr>, and abbreviated variable names 1: first_name, 2: last_name
 #> # i Use `colnames()` to see all variable names
 ```
 
 ## Prediction based on ethnicolr
 
-## Python Setup
+### Python Setup
 
 ToDO: Explain the Setup
 
 ``` r
 .py_path <- filter(conda_list(), name == "env-ethnicolr")[[2]]
 Sys.setenv(RETICULATE_PYTHON = .py_path)
-Sys.getenv("RETICULATE_PYTHON")
-#> [1] "E:\\Programs\\anaconda202205\\envs\\env-ethnicolr/python.exe"
 reticulate::py_discover_config()
 #> python:         E:/Programs/anaconda202205/envs/env-ethnicolr/python.exe
 #> libpython:      E:/Programs/anaconda202205/envs/env-ethnicolr/python37.dll
@@ -127,37 +125,52 @@ reticulate::py_discover_config()
 #> NOTE: Python version was forced by RETICULATE_PYTHON
 ```
 
+### Load Function
+
+The ethnicolr function is stored as a system file, you can easily load
+it with the following command.
+
+``` r
+.path_py <- system.file("extdata/ethnicolr.py", package = "rRace")
+reticulate::source_python(.path_py)
+```
+
+You can safely ignore the error about tensorflow (if present). It only
+tells you that you don’t have a GPU setup on your machine.
+
+As a reference the complete function (not necessary to execute it)
+
 ``` python
 import os 
 import pandas as pd 
 import ethnicolr
 
-def race_eth(tab, methods = ["ce-l", "fl-f", "fl-l"]):
+def race_eth(tab, methods = ["CEL", "FLF", "FLL"]):
     
-    # ce-l: census data, prediction on last name ------------------------------------------------
-    if "ce-l" in methods:
+    # CEL: CENSUS DATA, prediction on LAST NAME ------------------------------------------
+    if "CEL" in methods:
         df1 = ethnicolr.pred_census_ln(df=tab, namecol="last_name")
         cols = {'api': 'pasian', 'black': 'pblack', 'hispanic': 'phispa', 'white': 'pwhite'}
         df1.rename(columns=cols, inplace=True)
-        df1["method"]="ece-1-0-0-0-0-N"
+        df1["method"]="CEL-1-0-0-0-0-N"
     else:
         df1=pd.DataFrame()
     
-    # fl-f: florida data, prediction on full name -----------------------------------------------
-    if "fl-f" in methods:
+    # FLF: FLORIDA DATA, prediction on FULL NAME -----------------------------------------
+    if "FLF" in methods:
         df2 = ethnicolr.pred_fl_reg_name(df=tab, lname_col="last_name", fname_col="first_name")
         cols={'asian': 'pasian', 'nh_black': 'pblack', 'hispanic': 'phispa', 'nh_white': 'pwhite'}
         df2.rename(columns=cols, inplace=True)
-        df2["method"]="efl-1-1-0-0-0-N"
+        df2["method"]="FLF-1-1-0-0-0-N"
     else:
         df2=pd.DataFrame()
     
-    # fl-l: florida data, prediction on last name -----------------------------------------------
-    if "fl-l" in methods:
+    # FLL: FLORIDA DATA, prediction on LAST NAME -----------------------------------------
+    if "FLL" in methods:
         df3 = ethnicolr.pred_fl_reg_ln(df=tab, namecol="last_name")
         cols={'asian': 'pasian', 'nh_black': 'pblack', 'hispanic': 'phispa', 'nh_white': 'pwhite'}
         df3.rename(columns=cols, inplace=True)
-        df3["method"]="efl-1-1-0-0-0-N"
+        df3["method"]="FLL-1-1-0-0-0-N"
     else:
         df3=pd.DataFrame()
   
@@ -180,10 +193,9 @@ def race_eth(tab, methods = ["ce-l", "fl-f", "fl-l"]):
     return df_out
 ```
 
-``` r
-.path_py <- system.file("extdata/ethnicolr.py", package = "rRace")
-reticulate::source_python(.path_py)
-```
+Again, you can safely ignore the error about tensorflow (if present).
+
+### Prediction (Ethnicolr)
 
 ``` r
 tab_eth <- as_tibble(race_eth(tab_names))
@@ -191,16 +203,18 @@ head(tab_eth)
 #> # A tibble: 6 x 15
 #>      id first_name last_~1 gen     age state county tract method  pasian  pblack
 #>   <dbl> <chr>      <chr>   <chr> <dbl> <chr> <chr>  <chr> <chr>    <dbl>   <dbl>
-#> 1   144 Wynetta    Palma   fema~    40 AR    067    4805~ ece-1~ 0.0159  0.00481
-#> 2   231 Bobbie     Garcia  fema~    41 FL    NA     NA    ece-1~ 0.0134  0.00148
-#> 3   449 Rebecca    Beeson  fema~    51 IA    043    0701~ ece-1~ 0.00443 0.137  
-#> 4   465 Georgie    Head    fema~    35 KS    115    4895~ ece-1~ 0.00751 0.133  
-#> 5   470 Joyce      Langdon fema~    40 KY    029    0204~ ece-1~ 0.0110  0.0199 
-#> 6   682 Mary       Guthrie fema~    44 KY    107    9702~ ece-1~ 0.00269 0.0797 
+#> 1   144 Wynetta    Palma   fema~    40 AR    067    4805~ CEL-1~ 0.0159  0.00481
+#> 2   231 Bobbie     Garcia  fema~    41 FL    NA     NA    CEL-1~ 0.0134  0.00148
+#> 3   449 Rebecca    Beeson  fema~    51 IA    043    0701~ CEL-1~ 0.00443 0.137  
+#> 4   465 Georgie    Head    fema~    35 KS    115    4895~ CEL-1~ 0.00751 0.133  
+#> 5   470 Joyce      Langdon fema~    40 KY    029    0204~ CEL-1~ 0.0110  0.0199 
+#> 6   682 Mary       Guthrie fema~    44 KY    107    9702~ CEL-1~ 0.00269 0.0797 
 #> # ... with 4 more variables: phispa <dbl>, pwhite <dbl>, pother <dbl>,
 #> #   race <chr>, and abbreviated variable name 1: last_name
 #> # i Use `colnames()` to see all variable names
 ```
+
+## Combine Predictions
 
 ``` r
 tab_race <- race_predict(tab_prr, tab_wru, tab_eth)
@@ -209,16 +223,20 @@ head(tab_race)
 #>      id first_name last_n~1 gen     age state county tract method  pasian pblack
 #>   <dbl> <chr>      <chr>    <chr> <dbl> <chr> <chr>  <chr> <chr>    <dbl>  <dbl>
 #> 1     1 Michael    POWELL   male     47 AL    <NA>   <NA>  PRR-1~ 0.0159  0.0214
-#> 2     1 Michael    Powell   male     47 AL    NA     NA    efl-1~ 0.00217 0.202 
-#> 3     1 Michael    Powell   male     47 AL    NA     NA    ece-1~ 0.00506 0.277 
+#> 2     1 Michael    Powell   male     47 AL    NA     NA    FLF-1~ 0.00217 0.202 
+#> 3     1 Michael    Powell   male     47 AL    NA     NA    CEL-1~ 0.00506 0.277 
 #> 4     1 Michael    POWELL   male     47 AL    <NA>   <NA>  PRR-0~ 0.0042  0.266 
 #> 5     1 Michael    POWELL   male     47 AL    <NA>   <NA>  WRU-0~ 0.0046  0.271 
-#> 6     1 Michael    POWELL   male     47 AL    <NA>   <NA>  WRU-0~ 0.0046  0.271 
+#> 6     1 Michael    Powell   male     47 AL    NA     NA    FLL-1~ 0.00940 0.382 
 #> # ... with 8 more variables: phispa <dbl>, pwhite <dbl>, pother <dbl>,
 #> #   hp <dbl>, gd <dbl>, race <chr>, rank_hp <int>, rank_gd <int>, and
 #> #   abbreviated variable name 1: last_name
 #> # i Use `colnames()` to see all variable names
 ```
+
+# Output
+
+## Race based on Highest Prob.
 
 ``` r
 tab_race %>%
@@ -232,6 +250,8 @@ tab_race %>%
 ```
 
 <img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
+
+## Race based on Guess Diff.
 
 ``` r
 tab_race %>%

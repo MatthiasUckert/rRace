@@ -66,48 +66,56 @@ head(tab_wru)
 ```
 
 ## Prediction based on ethnicolr 
-## Python Setup
+### Python Setup
 ToDO: Explain the Setup
 
 
 ```{r}
 .py_path <- filter(conda_list(), name == "env-ethnicolr")[[2]]
 Sys.setenv(RETICULATE_PYTHON = .py_path)
-Sys.getenv("RETICULATE_PYTHON")
 reticulate::py_discover_config()
 ```
+### Load Function
+The ethnicolr function is stored as a system file, you can easily load it with the following command.
+```{r message=FALSE, warning=FALSE}
+.path_py <- system.file("extdata/ethnicolr.py", package = "rRace")
+reticulate::source_python(.path_py)
+```
+You can safely ignore the error about tensorflow (if present). It only tells you that you don't have a GPU setup on your machine.
 
+
+As a reference the complete function (not necessary to execute it)
 ```{python}
 import os 
 import pandas as pd 
 import ethnicolr
 
-def race_eth(tab, methods = ["ce-l", "fl-f", "fl-l"]):
+def race_eth(tab, methods = ["CEL", "FLF", "FLL"]):
     
-    # ce-l: census data, prediction on last name ------------------------------------------------
-    if "ce-l" in methods:
+    # CEL: CENSUS DATA, prediction on LAST NAME ------------------------------------------
+    if "CEL" in methods:
         df1 = ethnicolr.pred_census_ln(df=tab, namecol="last_name")
         cols = {'api': 'pasian', 'black': 'pblack', 'hispanic': 'phispa', 'white': 'pwhite'}
         df1.rename(columns=cols, inplace=True)
-        df1["method"]="ece-1-0-0-0-0-N"
+        df1["method"]="CEL-1-0-0-0-0-N"
     else:
         df1=pd.DataFrame()
     
-    # fl-f: florida data, prediction on full name -----------------------------------------------
-    if "fl-f" in methods:
+    # FLF: FLORIDA DATA, prediction on FULL NAME -----------------------------------------
+    if "FLF" in methods:
         df2 = ethnicolr.pred_fl_reg_name(df=tab, lname_col="last_name", fname_col="first_name")
         cols={'asian': 'pasian', 'nh_black': 'pblack', 'hispanic': 'phispa', 'nh_white': 'pwhite'}
         df2.rename(columns=cols, inplace=True)
-        df2["method"]="efl-1-1-0-0-0-N"
+        df2["method"]="FLF-1-1-0-0-0-N"
     else:
         df2=pd.DataFrame()
     
-    # fl-l: florida data, prediction on last name -----------------------------------------------
-    if "fl-l" in methods:
+    # FLL: FLORIDA DATA, prediction on LAST NAME -----------------------------------------
+    if "FLL" in methods:
         df3 = ethnicolr.pred_fl_reg_ln(df=tab, namecol="last_name")
         cols={'asian': 'pasian', 'nh_black': 'pblack', 'hispanic': 'phispa', 'nh_white': 'pwhite'}
         df3.rename(columns=cols, inplace=True)
-        df3["method"]="efl-1-1-0-0-0-N"
+        df3["method"]="FLL-1-1-0-0-0-N"
     else:
         df3=pd.DataFrame()
   
@@ -131,22 +139,21 @@ def race_eth(tab, methods = ["ce-l", "fl-f", "fl-l"]):
 
 ```
 
+Again, you can safely ignore the error about tensorflow (if present).
 
-```{r}
-.path_py <- system.file("extdata/ethnicolr.py", package = "rRace")
-reticulate::source_python(.path_py)
-```
-
+### Prediction (Ethnicolr)
 ```{r message=FALSE, warning=FALSE}
 tab_eth <- as_tibble(race_eth(tab_names))
 head(tab_eth)
 ```
-
+## Combine Predictions
 ```{r}
 tab_race <- race_predict(tab_prr, tab_wru, tab_eth)
 head(tab_race)
 ```
 
+# Output
+## Race based on Highest Prob.
 ```{r fig.width=7}
 tab_race %>%
   filter(rank_hp == 1) %>%
@@ -158,7 +165,7 @@ tab_race %>%
   ggthemes::theme_tufte()
 ```
 
-
+## Race based on Guess Diff.
 ```{r fig.width=7}
 tab_race %>%
   filter(rank_gd == 1) %>%

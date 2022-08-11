@@ -2,32 +2,32 @@ import os
 import pandas as pd 
 import ethnicolr
 
-def race_eth(tab, methods = ["ce-l", "fl-f", "fl-l"]):
+def race_eth(tab, methods = ["CEL", "FLF", "FLL"]):
     
-    # ce-l: census data, prediction on last name ------------------------------------------------
-    if "ce-l" in methods:
+    # CEL: CENSUS DATA, prediction on LAST NAME ------------------------------------------
+    if "CEL" in methods:
         df1 = ethnicolr.pred_census_ln(df=tab, namecol="last_name")
         cols = {'api': 'pasian', 'black': 'pblack', 'hispanic': 'phispa', 'white': 'pwhite'}
         df1.rename(columns=cols, inplace=True)
-        df1["method"]="ece-1-0-0-0-0-N"
+        df1["method"]="CEL-1-0-0-0-0-N"
     else:
         df1=pd.DataFrame()
     
-    # fl-f: florida data, prediction on full name -----------------------------------------------
-    if "fl-f" in methods:
+    # FLF: FLORIDA DATA, prediction on FULL NAME -----------------------------------------
+    if "FLF" in methods:
         df2 = ethnicolr.pred_fl_reg_name(df=tab, lname_col="last_name", fname_col="first_name")
         cols={'asian': 'pasian', 'nh_black': 'pblack', 'hispanic': 'phispa', 'nh_white': 'pwhite'}
         df2.rename(columns=cols, inplace=True)
-        df2["method"]="efl-1-1-0-0-0-N"
+        df2["method"]="FLF-1-1-0-0-0-N"
     else:
         df2=pd.DataFrame()
     
-    # fl-l: florida data, prediction on last name -----------------------------------------------
-    if "fl-l" in methods:
+    # FLL: FLORIDA DATA, prediction on LAST NAME -----------------------------------------
+    if "FLL" in methods:
         df3 = ethnicolr.pred_fl_reg_ln(df=tab, namecol="last_name")
         cols={'asian': 'pasian', 'nh_black': 'pblack', 'hispanic': 'phispa', 'nh_white': 'pwhite'}
         df3.rename(columns=cols, inplace=True)
-        df3["method"]="efl-1-1-0-0-0-N"
+        df3["method"]="FLL-1-1-0-0-0-N"
     else:
         df3=pd.DataFrame()
   

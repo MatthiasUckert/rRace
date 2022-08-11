@@ -7,6 +7,7 @@ Authors@R:
 Description: 
     Wrapper around the R packages (predictrace, wru) and the python package ethnicolr.
     Standarizes the API and implements "GuessDiff" as an algorithm to choose between models.
+    A short use case can be found on my github repo (https://github.com/MatthiasUckert/rRace).
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
