@@ -1,3 +1,3 @@
 .tab     = name_table
-.use_age = TRUE
+.use_age = FALSE
 .methods = c("ssa", "ipums", "napp")

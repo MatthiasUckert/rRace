@@ -394,7 +394,7 @@ race_predict <- function(...) {
 gender_predict <- function(.tab, .use_age = FALSE, .methods = c("ssa", "ipums", "napp")) {
 
   # Debug -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-  # source("_debug_vars/debug-gender_predict.R")
+  source("_debug_vars/debug-gender_predict.R")
 
 
   # Assign NULL to Global Vars -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
@@ -410,9 +410,10 @@ gender_predict <- function(.tab, .use_age = FALSE, .methods = c("ssa", "ipums", 
     stop("allowed methods are 'ssa', 'ipums' and 'napp'", call. = FALSE)
   }
 
+
+
   # Standardize Names  -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
-  tab_ <- dplyr::mutate(.tab, name_ = trimws(toupper(gsub("[^[:alnum:] ]", "", first_name)))) %>%
-    dplyr::mutate(birth_year = as.integer(format(Sys.time(), "%Y")) - age)
+  tab_ <- dplyr::mutate(.tab, name_ = trimws(toupper(gsub("[^[:alnum:] ]", "", first_name))))
 
   # Checks  -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- ---
   if (any(grepl(" ", tab_$name_, fixed = TRUE))) {
@@ -436,6 +437,8 @@ gender_predict <- function(.tab, .use_age = FALSE, .methods = c("ssa", "ipums", 
   # Predict with age  -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
   if (.use_age) {
     check_cols(.tab, "age")
+    tab_ <- dplyr::mutate(tab_, birth_year = as.integer(format(Sys.time(), "%Y")) - age)
+
     tab_in_ <- dplyr::distinct(tab_, name_, birth_year)
     lst_in_ <- split(tab_in_, tab_in_$birth_year)
     tab2_ <- purrr::map_dfr(
@@ -454,6 +457,7 @@ gender_predict <- function(.tab, .use_age = FALSE, .methods = c("ssa", "ipums", 
   } else {
     tab2_ <- tibble::tibble()
   }
+
   out_ <- dplyr::bind_rows(tab1_, tab2_) %>%
     dplyr::select(!!!dplyr::syms(colnames(.tab)), method, pmale = proportion_male, gender)
 
