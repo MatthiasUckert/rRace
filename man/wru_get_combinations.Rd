@@ -4,9 +4,11 @@
 \alias{wru_get_combinations}
 \title{Helper Function: get combinations for race_wru()}
 \usage{
-wru_get_combinations(.use_age, .use_gen)
+wru_get_combinations(.use_geo, .use_age, .use_gen)
 }
 \arguments{
+\item{.use_geo}{same as in race_wr}
+
 \item{.use_age}{same as in race_wru()}
 
 \item{.use_gen}{same as in race_wru()}

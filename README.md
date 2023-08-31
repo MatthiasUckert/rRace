@@ -14,14 +14,16 @@ python library
 
 ``` r
 library(rRace); library(reticulate); library(tidyverse); library(ggthemes)
-#> -- Attaching packages --------------------------------------- tidyverse 1.3.2 --
-#> v ggplot2 3.3.6     v purrr   0.3.4
-#> v tibble  3.1.8     v dplyr   1.0.9
-#> v tidyr   1.2.0     v stringr 1.4.0
-#> v readr   2.1.2     v forcats 0.5.1
+#> -- Attaching core tidyverse packages ------------------------ tidyverse 2.0.0 --
+#> v dplyr     1.1.2     v readr     2.1.4
+#> v forcats   1.0.0     v stringr   1.5.0
+#> v ggplot2   3.4.2     v tibble    3.2.1
+#> v lubridate 1.9.2     v tidyr     1.3.0
+#> v purrr     1.0.1     
 #> -- Conflicts ------------------------------------------ tidyverse_conflicts() --
 #> x dplyr::filter() masks stats::filter()
 #> x dplyr::lag()    masks stats::lag()
+#> i Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
 ```
 
 We test the package with a build-in table “name_table” which includes
@@ -55,9 +57,7 @@ head(tab_prr)
 #> 4     2 Cody       Maupin    male     35 AL    007    0100~ PRR-1~ 0.0101 0.0121
 #> 5     3 Kevin      Neff      male     48 AL    081    0421~ PRR-0~ 0.006  0.0092
 #> 6     3 Kevin      Neff      male     48 AL    081    0421~ PRR-1~ 0.0324 0.0284
-#> # ... with 4 more variables: phispa <dbl>, pwhite <dbl>, pother <dbl>,
-#> #   race <chr>
-#> # i Use `colnames()` to see all variable names
+#> # i 4 more variables: phispa <dbl>, pwhite <dbl>, pother <dbl>, race <chr>
 ```
 
 ## Prediction based on wru
@@ -91,17 +91,16 @@ tab_wru <- race_wru(
 
 head(tab_wru)
 #> # A tibble: 6 x 15
-#>      id first_n~1 last_~2 gen     age state county tract method   pasian  pblack
-#>   <int> <chr>     <chr>   <chr> <dbl> <chr> <chr>  <chr> <chr>     <dbl>   <dbl>
-#> 1     1 Michael   POWELL  male     47 AL    <NA>   <NA>  WRU-0~  0.0046   0.271 
-#> 2     1 Michael   POWELL  male     47 AL    <NA>   <NA>  WRU-0~ NA       NA     
-#> 3     1 Michael   POWELL  male     47 AL    <NA>   <NA>  WRU-0~ NA       NA     
-#> 4     1 Michael   POWELL  male     47 AL    <NA>   <NA>  WRU-0~ NA       NA     
-#> 5     1 Michael   POWELL  male     47 AL    <NA>   <NA>  WRU-0~ NA       NA     
-#> 6     2 Cody      Maupin  male     35 AL    007    0100~ WRU-0~  0.00610  0.0569
-#> # ... with 4 more variables: phispa <dbl>, pwhite <dbl>, pother <dbl>,
-#> #   race <chr>, and abbreviated variable names 1: first_name, 2: last_name
-#> # i Use `colnames()` to see all variable names
+#>      id first_name last_name gen     age state county tract  method       pasian
+#>   <int> <chr>      <chr>     <chr> <dbl> <chr> <chr>  <chr>  <chr>         <dbl>
+#> 1     1 Michael    POWELL    male     47 AL    <NA>   <NA>   WRU-0-1-0~  0.0046 
+#> 2     1 Michael    POWELL    male     47 AL    <NA>   <NA>   WRU-0-1-1~ NA      
+#> 3     1 Michael    POWELL    male     47 AL    <NA>   <NA>   WRU-0-1-1~ NA      
+#> 4     1 Michael    POWELL    male     47 AL    <NA>   <NA>   WRU-0-1-1~ NA      
+#> 5     1 Michael    POWELL    male     47 AL    <NA>   <NA>   WRU-0-1-1~ NA      
+#> 6     2 Cody       Maupin    male     35 AL    007    010003 WRU-0-1-0~  0.00610
+#> # i 5 more variables: pblack <dbl>, phispa <dbl>, pwhite <dbl>, pother <dbl>,
+#> #   race <chr>
 ```
 
 ## Prediction based on ethnicolr
@@ -131,7 +130,7 @@ The ethnicolr function is stored as a system file, you can easily load
 it with the following command.
 
 ``` r
-.path_py <- system.file("extdata/ethnicolr.py", package = "rRace")
+.path_py <- system.file("extdata/script_ethnicolr.py", package = "rRace")
 reticulate::source_python(.path_py)
 ```
 
@@ -201,17 +200,16 @@ Again, you can safely ignore the error about tensorflow (if present).
 tab_eth <- as_tibble(race_eth(tab_names))
 head(tab_eth)
 #> # A tibble: 6 x 15
-#>      id first_name last_~1 gen     age state county tract method  pasian  pblack
-#>   <dbl> <chr>      <chr>   <chr> <dbl> <chr> <chr>  <chr> <chr>    <dbl>   <dbl>
-#> 1   144 Wynetta    Palma   fema~    40 AR    067    4805~ CEL-1~ 0.0159  0.00481
-#> 2   231 Bobbie     Garcia  fema~    41 FL    NA     NA    CEL-1~ 0.0134  0.00148
-#> 3   449 Rebecca    Beeson  fema~    51 IA    043    0701~ CEL-1~ 0.00443 0.137  
-#> 4   465 Georgie    Head    fema~    35 KS    115    4895~ CEL-1~ 0.00751 0.133  
-#> 5   470 Joyce      Langdon fema~    40 KY    029    0204~ CEL-1~ 0.0110  0.0199 
-#> 6   682 Mary       Guthrie fema~    44 KY    107    9702~ CEL-1~ 0.00269 0.0797 
-#> # ... with 4 more variables: phispa <dbl>, pwhite <dbl>, pother <dbl>,
-#> #   race <chr>, and abbreviated variable name 1: last_name
-#> # i Use `colnames()` to see all variable names
+#>      id first_name last_name gen      age state county tract  method      pasian
+#>   <dbl> <chr>      <chr>     <chr>  <dbl> <chr> <chr>  <chr>  <chr>        <dbl>
+#> 1   144 Wynetta    Palma     female    40 AR    067    480500 CEL-1-0-0~ 0.0159 
+#> 2   231 Bobbie     Garcia    female    41 FL    NA     NA     CEL-1-0-0~ 0.0134 
+#> 3   449 Rebecca    Beeson    female    51 IA    043    070100 CEL-1-0-0~ 0.00443
+#> 4   465 Georgie    Head      female    35 KS    115    489500 CEL-1-0-0~ 0.00751
+#> 5   470 Joyce      Langdon   female    40 KY    029    020400 CEL-1-0-0~ 0.0110 
+#> 6   682 Mary       Guthrie   female    44 KY    107    970200 CEL-1-0-0~ 0.00269
+#> # i 5 more variables: pblack <dbl>, phispa <dbl>, pwhite <dbl>, pother <dbl>,
+#> #   race <chr>
 ```
 
 ## Combine Predictions
@@ -220,18 +218,16 @@ head(tab_eth)
 tab_race <- race_predict(tab_prr, tab_wru, tab_eth)
 head(tab_race)
 #> # A tibble: 6 x 19
-#>      id first_name last_n~1 gen     age state county tract method  pasian pblack
-#>   <dbl> <chr>      <chr>    <chr> <dbl> <chr> <chr>  <chr> <chr>    <dbl>  <dbl>
-#> 1     1 Michael    POWELL   male     47 AL    <NA>   <NA>  PRR-1~ 0.0159  0.0214
-#> 2     1 Michael    Powell   male     47 AL    NA     NA    FLF-1~ 0.00217 0.202 
-#> 3     1 Michael    Powell   male     47 AL    NA     NA    CEL-1~ 0.00506 0.277 
-#> 4     1 Michael    POWELL   male     47 AL    <NA>   <NA>  PRR-0~ 0.0042  0.266 
-#> 5     1 Michael    POWELL   male     47 AL    <NA>   <NA>  WRU-0~ 0.0046  0.271 
-#> 6     1 Michael    Powell   male     47 AL    NA     NA    FLL-1~ 0.00940 0.382 
-#> # ... with 8 more variables: phispa <dbl>, pwhite <dbl>, pother <dbl>,
-#> #   hp <dbl>, gd <dbl>, race <chr>, rank_hp <int>, rank_gd <int>, and
-#> #   abbreviated variable name 1: last_name
-#> # i Use `colnames()` to see all variable names
+#>      id first_name last_name gen     age state county tract method        pasian
+#>   <dbl> <chr>      <chr>     <chr> <dbl> <chr> <chr>  <chr> <chr>          <dbl>
+#> 1     1 Michael    POWELL    male     47 AL    <NA>   <NA>  PRR-1-0-0-0~ 0.0159 
+#> 2     1 Michael    Powell    male     47 AL    NA     NA    FLF-1-1-0-0~ 0.00217
+#> 3     1 Michael    Powell    male     47 AL    NA     NA    CEL-1-0-0-0~ 0.00506
+#> 4     1 Michael    POWELL    male     47 AL    <NA>   <NA>  PRR-0-1-0-0~ 0.0042 
+#> 5     1 Michael    POWELL    male     47 AL    <NA>   <NA>  WRU-0-1-0-0~ 0.0046 
+#> 6     1 Michael    Powell    male     47 AL    NA     NA    FLL-1-1-0-0~ 0.00940
+#> # i 9 more variables: pblack <dbl>, phispa <dbl>, pwhite <dbl>, pother <dbl>,
+#> #   hp <dbl>, gd <dbl>, race <chr>, rank_hp <int>, rank_gd <int>
 ```
 
 # Output

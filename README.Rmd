@@ -18,25 +18,29 @@ knitr::opts_chunk$set(
 This packages standardizes the output for the R packages [**wru**](https://github.com/kosukeimai/wru "R: wru"), [**predictrace**](https://rdrr.io/cran/wru/man/predict_race.html "R: predictrace"), and includes a python script and virtual environment setup for the python library [**ethnicolr**](https://github.com/appeler/ethnicolr "Python: ethnicolr").
 
 # Codes
+
 ```{r setup}
 library(rRace); library(reticulate); library(tidyverse); library(ggthemes)
 ```
 
 We test the package with a build-in table "name_table" which includes some random names.
+
 ```{r}
 tab_names <- name_table
 head(tab_names)
 ```
 
-
 ## Prediction based on predictrace
+
 ```{r}
 tab_prr <- race_prr(tab_names)
 head(tab_prr)
 ```
 
 ## Prediction based on wru
+
 First we have to download census data
+
 ```{r}
 download_census(
   .key = "YOUR KEY",
@@ -51,7 +55,6 @@ download_census(
 )
 ```
 
-
 ```{r}
 tab_wru <- race_wru(
   .tab = tab_names,
@@ -65,26 +68,31 @@ tab_wru <- race_wru(
 head(tab_wru)
 ```
 
-## Prediction based on ethnicolr 
-### Python Setup
-ToDO: Explain the Setup
+## Prediction based on ethnicolr
 
+### Python Setup
+
+ToDO: Explain the Setup
 
 ```{r}
 .py_path <- filter(conda_list(), name == "env-ethnicolr")[[2]]
 Sys.setenv(RETICULATE_PYTHON = .py_path)
 reticulate::py_discover_config()
 ```
+
 ### Load Function
+
 The ethnicolr function is stored as a system file, you can easily load it with the following command.
+
 ```{r message=FALSE, warning=FALSE}
-.path_py <- system.file("extdata/ethnicolr.py", package = "rRace")
+.path_py <- system.file("extdata/script_ethnicolr.py", package = "rRace")
 reticulate::source_python(.path_py)
 ```
+
 You can safely ignore the error about tensorflow (if present). It only tells you that you don't have a GPU setup on your machine.
 
-
 As a reference the complete function (not necessary to execute it)
+
 ```{python}
 import os 
 import pandas as pd 
@@ -142,18 +150,23 @@ def race_eth(tab, methods = ["CEL", "FLF", "FLL"]):
 Again, you can safely ignore the error about tensorflow (if present).
 
 ### Prediction (Ethnicolr)
+
 ```{r message=FALSE, warning=FALSE}
 tab_eth <- as_tibble(race_eth(tab_names))
 head(tab_eth)
 ```
+
 ## Combine Predictions
+
 ```{r}
 tab_race <- race_predict(tab_prr, tab_wru, tab_eth)
 head(tab_race)
 ```
 
 # Output
+
 ## Race based on Highest Prob.
+
 ```{r fig.width=7}
 tab_race %>%
   filter(rank_hp == 1) %>%
@@ -166,6 +179,7 @@ tab_race %>%
 ```
 
 ## Race based on Guess Diff.
+
 ```{r fig.width=7}
 tab_race %>%
   filter(rank_gd == 1) %>%
@@ -176,4 +190,3 @@ tab_race %>%
   ggthemes::geom_rangeframe(color = "black") +
   ggthemes::theme_tufte()
 ```
-

@@ -62,7 +62,7 @@ check_geo_columns <- function(.tab, .census_geo) {
 #'
 #' @param .use_age same as in race_wru()
 #' @param .use_gen same as in race_wru()
-#'
+#' @param .use_geo same as in race_wr
 #' @return A datafram
 wru_get_combinations <- function(.use_geo, .use_age, .use_gen) {
 
